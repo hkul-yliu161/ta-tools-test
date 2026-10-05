@@ -1,0 +1,483 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transformative Agreements Journal Discovery Tool (Beta)</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    :root {
+      --hku-red: #7b1e32;
+      --hku-dark: #3f1020;
+      --text: #222;
+      --muted: #666;
+      --border: #d8d8d8;
+      --background: #f6f7f8;
+      --white: #fff;
+      --link: #005a9c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: var(--background);
+      line-height: 1.55;
+    }
+
+    header {
+      background: var(--hku-red);
+      color: white;
+      padding: 2.2rem 1.25rem;
+    }
+
+    header .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      line-height: 1.2;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+
+    .intro,
+    .search-panel,
+    .results-panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .intro p {
+      margin: 0 0 1rem;
+    }
+
+    .intro p:last-child {
+      margin-bottom: 0;
+    }
+
+    a {
+      color: var(--link);
+    }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #a9a9a9;
+      border-radius: 4px;
+    }
+
+    input:focus {
+      outline: 3px solid rgba(123, 30, 50, 0.2);
+      border-color: var(--hku-red);
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: end;
+      margin-top: 1rem;
+    }
+
+    button {
+      padding: 0.7rem 1rem;
+      border: 0;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .reset-button {
+      color: white;
+      background: var(--hku-red);
+    }
+
+    .reset-button:hover {
+      background: var(--hku-dark);
+    }
+
+    #status {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th,
+    td {
+      padding: 0.8rem;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0e8ea;
+      color: var(--hku-dark);
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    .empty-message {
+      padding: 1rem;
+      background: #fff8dc;
+      border-left: 4px solid #c69214;
+      margin-top: 1rem;
+    }
+
+    .loading {
+      padding: 1rem;
+      background: #eef5fb;
+      border-left: 4px solid var(--link);
+    }
+
+    @media (max-width: 900px) {
+      .search-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .search-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <h1>Transformative Agreements Journal Discovery Tool (Beta)</h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-label="About this tool">
+      <p>
+        This tool aims to assist HKU researchers to discover journals with open
+        access article processing charges covered by transformative agreements
+        (TA). Details about TA can be found at:
+        <a href="https://libguides.lib.hku.hk/openaccess/ta" target="_blank" rel="noopener">
+          https://libguides.lib.hku.hk/openaccess/ta
+        </a>.
+      </p>
+
+      <p>
+        All data are up-to-date at the time of data collection. Publishers may
+        include and exclude journals without notifying the Libraries. Please
+        refer to the agreement page for latest information.
+      </p>
+
+      <p>
+        If you find out any discrepancies between the information provided by
+        this tool and that provided by the publisher, please report them to us via:
+        <a href="https://lib.hku.hk/check_form/ask_a_librarian-form/" target="_blank" rel="noopener">
+          Ask a Librarian
+        </a>
+        (To: Open Access).
+      </p>
+
+      <p>
+        Some publishers declined to provide journal lists covered by the
+        transformative agreements, which were used for creation of this tool.
+        Please directly refer to the publishers' sites for journals covered.
+        They are:
+        <br />
+        ACM (Association for Computing Machinery):
+        <a href="https://libguides.lib.hku.hk/openaccess/ta#ACM" target="_blank" rel="noopener">
+          https://libguides.lib.hku.hk/openaccess/ta#ACM
+        </a>
+      </p>
+    </section>
+
+    <section class="search-panel" aria-label="Journal search">
+      <div class="search-grid">
+        <div>
+          <label for="journalSearch">Journal</label>
+          <input id="journalSearch" type="search" placeholder="Search journal title" />
+        </div>
+
+        <div>
+          <label for="issnSearch">ISSN</label>
+          <input id="issnSearch" type="search" placeholder="e.g. 0003-6900" />
+        </div>
+
+        <div>
+          <label for="eissnSearch">eISSN</label>
+          <input id="eissnSearch" type="search" placeholder="e.g. 1528-9028" />
+        </div>
+
+        <div>
+          <label for="publisherSearch">Publisher</label>
+          <input id="publisherSearch" type="search" placeholder="Search publisher" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="resetButton" class="reset-button" type="button">Clear search</button>
+        <p id="status" aria-live="polite">Loading journal data…</p>
+      </div>
+    </section>
+
+    <section class="results-panel" aria-label="Search results">
+      <div id="results"></div>
+    </section>
+  </main>
+
+  <script>
+    const CSV_FILE = "merged_journal_list.csv";
+    let journals = [];
+
+    const fields = {
+      journal: document.getElementById("journalSearch"),
+      issn: document.getElementById("issnSearch"),
+      eissn: document.getElementById("eissnSearch"),
+      publisher: document.getElementById("publisherSearch")
+    };
+
+    const status = document.getElementById("status");
+    const results = document.getElementById("results");
+    const resetButton = document.getElementById("resetButton");
+
+    function clean(value) {
+      return String(value ?? "").trim();
+    }
+
+    function normalise(value) {
+      return clean(value).toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function getValue(row, possibleNames) {
+      const keys = Object.keys(row);
+
+      for (const name of possibleNames) {
+        const key = keys.find(
+          item => item.trim().toLowerCase() === name.toLowerCase()
+        );
+
+        if (key && row[key] !== undefined && clean(row[key]) !== "") {
+          return clean(row[key]);
+        }
+      }
+
+      return "";
+    }
+
+    function normaliseRow(row) {
+      return {
+        journal: getValue(row, ["journal", "journal title", "title"]),
+        issn: getValue(row, ["issn", "print issn", "p-issn"]),
+        eissn: getValue(row, ["eissn", "e-issn", "electronic issn", "online issn"]),
+        publisher: getValue(row, ["publisher", "publisher name"]),
+        coverage: getValue(row, [
+          "APC Coverage for HKU Authors",
+          "apc coverage for hku authors",
+          "apc coverage",
+          "coverage"
+        ]),
+        link: getValue(row, ["link", "url", "agreement link"])
+      };
+    }
+
+    function escapeHtml(value) {
+      return clean(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function isSafeUrl(url) {
+      try {
+        const parsed = new URL(url);
+        return parsed.protocol === "https:" || parsed.protocol === "http:";
+      } catch {
+        return false;
+      }
+    }
+
+    function getFilteredJournals() {
+      const journalQuery = normalise(fields.journal.value);
+      const issnQuery = normalise(fields.issn.value);
+      const eissnQuery = normalise(fields.eissn.value);
+      const publisherQuery = normalise(fields.publisher.value);
+
+      return journals.filter(item => {
+        return (
+          (!journalQuery || normalise(item.journal).includes(journalQuery)) &&
+          (!issnQuery || normalise(item.issn).includes(issnQuery)) &&
+          (!eissnQuery || normalise(item.eissn).includes(eissnQuery)) &&
+          (!publisherQuery || normalise(item.publisher).includes(publisherQuery))
+        );
+      });
+    }
+
+    function renderResults() {
+      const filtered = getFilteredJournals();
+
+      if (!journals.length) {
+        return;
+      }
+
+      status.textContent = `${filtered.length.toLocaleString()} journal(s) found`;
+
+      if (!filtered.length) {
+        results.innerHTML = `
+          <div class="empty-message">
+            No matching journals were found. Try changing or clearing one or more search fields.
+          </div>
+        `;
+        return;
+      }
+
+      const rows = filtered.map(item => {
+        const agreementLink = isSafeUrl(item.link)
+          ? `<a href="${escapeHtml(item.link)}" target="_blank" rel="noopener">View agreement details</a>`
+          : "";
+
+        return `
+          <tr>
+            <td>${escapeHtml(item.journal)}</td>
+            <td>${escapeHtml(item.issn)}</td>
+            <td>${escapeHtml(item.eissn)}</td>
+            <td>${escapeHtml(item.publisher)}</td>
+            <td>${escapeHtml(item.coverage)}</td>
+            <td>${agreementLink}</td>
+          </tr>
+        `;
+      }).join("");
+
+      results.innerHTML = `
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Journal</th>
+                <th>ISSN</th>
+                <th>eISSN</th>
+                <th>Publisher</th>
+                <th>APC Coverage for HKU Authors</th>
+                <th>Agreement Details</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function loadCsv() {
+      Papa.parse(CSV_FILE, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(result) {
+          journals = result.data
+            .map(normaliseRow)
+            .filter(item =>
+              item.journal || item.issn || item.eissn || item.publisher
+            )
+            .sort((a, b) => a.journal.localeCompare(b.journal));
+
+          if (result.errors.length) {
+            console.warn("CSV parsing warnings:", result.errors);
+          }
+
+          renderResults();
+        },
+        error: function(error) {
+          status.textContent = "Unable to load journal data.";
+          results.innerHTML = `
+            <div class="empty-message">
+              The CSV file could not be loaded. Please ensure that
+              <strong>merged_journal_list.csv</strong> is in the same folder as
+              <strong>index.html</strong>.
+            </div>
+          `;
+          console.error(error);
+        }
+      });
+    }
+
+    Object.values(fields).forEach(input => {
+      input.addEventListener("input", renderResults);
+    });
+
+    resetButton.addEventListener("click", () => {
+      Object.values(fields).forEach(input => {
+        input.value = "";
+      });
+      renderResults();
+    });
+
+    loadCsv();
+  </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
