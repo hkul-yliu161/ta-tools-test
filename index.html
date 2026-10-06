@@ -20,7 +20,6 @@
       --primary: #598e96;
       --primary-dark: #3f7078;
       --primary-light: #e6e9e3;
-
       --text: #263b3f;
       --muted: #5d7478;
       --border: #c8d2ce;
@@ -102,7 +101,7 @@
 
     .search-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
       gap: 1rem;
     }
 
@@ -263,13 +262,7 @@
       color: var(--muted);
     }
 
-    @media (max-width: 950px) {
-      .search-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 580px) {
+    @media (max-width: 650px) {
       header {
         padding: 1.8rem 1rem;
       }
@@ -338,51 +331,32 @@
         Some publishers declined to provide journal lists covered by the
         transformative agreements, which were used for creation of this tool.
         Please directly refer to the publishers' sites for journals covered.
-        They are:<br>
-        <q>ACM (Association for Computing Machinery)
+        They are:</p>
+      <blockquote>
         <a
           href="https://libguides.lib.hku.hk/openaccess/ta#ACM"
           target="_blank"
           rel="noopener noreferrer"
-        >https://libguides.lib.hku.hk/openaccess/ta#ACM</a></q>q>
-      </p>
+        >ACM (Association for Computing Machinery)</a>
+      </blockquote>
+
     </section>
 
     <section class="search-panel" aria-label="Journal search">
       <div class="search-grid">
         <div>
-          <label for="journalSearch">Journal</label>
+          <label for="keywordSearch">Journal title, ISSN or eISSN</label>
           <input
-            id="journalSearch"
+            id="keywordSearch"
             type="search"
-            placeholder="Search journal title"
+            placeholder="Search journal title, ISSN or eISSN"
             autocomplete="off"
           >
         </div>
 
         <div>
-          <label for="issnSearch">ISSN</label>
-          <input
-            id="issnSearch"
-            type="search"
-            placeholder="e.g. 0003-6900"
-            autocomplete="off"
-          >
-        </div>
-
-        <div>
-          <label for="eissnSearch">eISSN</label>
-          <input
-            id="eissnSearch"
-            type="search"
-            placeholder="e.g. 1528-9028"
-            autocomplete="off"
-          >
-        </div>
-
-        <div>
-          <label for="publisherSearch">Agreement</label>
-          <select id="publisherSearch">
+          <label for="agreementSearch">Agreement</label>
+          <select id="agreementSearch">
             <option value="">All agreements</option>
           </select>
         </div>
@@ -392,6 +366,7 @@
         <button id="resetButton" class="reset-button" type="button">
           Clear search
         </button>
+
         <p id="status" aria-live="polite">Loading journal data…</p>
       </div>
     </section>
@@ -413,10 +388,8 @@
     let currentPage = 1;
 
     const fields = {
-      journal: document.getElementById("journalSearch"),
-      issn: document.getElementById("issnSearch"),
-      eissn: document.getElementById("eissnSearch"),
-      agreement: document.getElementById("publisherSearch")
+      keyword: document.getElementById("keywordSearch"),
+      agreement: document.getElementById("agreementSearch")
     };
 
     const status = document.getElementById("status");
@@ -429,7 +402,20 @@
     }
 
     function normalise(value) {
-      return clean(value).toLowerCase().replace(/\s+/g, " ");
+      return clean(value)
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    /*
+      Removes hyphens, spaces, and other punctuation from ISSN/eISSN values.
+      Examples:
+      1234-5678, 12345678, and 1234 5678 all become 12345678.
+    */
+    function normaliseIssn(value) {
+      return clean(value)
+        .toLowerCase()
+        .replace(/[^0-9x]/g, "");
     }
 
     function escapeHtml(value) {
@@ -468,22 +454,37 @@
 
     function normaliseRow(row) {
       return {
-        journal: getValue(row, ["journal", "journal title", "title"]),
-        issn: getValue(row, ["issn", "print issn", "p-issn"]),
+        journal: getValue(row, [
+          "journal",
+          "journal title",
+          "title"
+        ]),
+        issn: getValue(row, [
+          "issn",
+          "print issn",
+          "p-issn"
+        ]),
         eissn: getValue(row, [
           "eissn",
           "e-issn",
           "electronic issn",
           "online issn"
         ]),
-        agreement: getValue(row, ["publisher", "publisher name"]),
+        agreement: getValue(row, [
+          "publisher",
+          "publisher name"
+        ]),
         coverage: getValue(row, [
           "APC Coverage for HKU Authors",
           "apc coverage for hku authors",
           "apc coverage",
           "coverage"
         ]),
-        link: getValue(row, ["link", "url", "agreement link"])
+        link: getValue(row, [
+          "link",
+          "url",
+          "agreement link"
+        ])
       };
     }
 
@@ -504,18 +505,25 @@
     }
 
     function getFilteredJournals() {
-      const journalQuery = normalise(fields.journal.value);
-      const issnQuery = normalise(fields.issn.value);
-      const eissnQuery = normalise(fields.eissn.value);
+      const keywordQuery = normalise(fields.keyword.value);
+      const issnQuery = normaliseIssn(fields.keyword.value);
       const agreementQuery = normalise(fields.agreement.value);
 
       return journals.filter(item => {
-        return (
-          (!journalQuery || normalise(item.journal).includes(journalQuery)) &&
-          (!issnQuery || normalise(item.issn).includes(issnQuery)) &&
-          (!eissnQuery || normalise(item.eissn).includes(eissnQuery)) &&
-          (!agreementQuery || normalise(item.agreement) === agreementQuery)
-        );
+        const journalMatches =
+          !keywordQuery ||
+          normalise(item.journal).includes(keywordQuery);
+
+        const issnMatches =
+          !issnQuery ||
+          normaliseIssn(item.issn).includes(issnQuery) ||
+          normaliseIssn(item.eissn).includes(issnQuery);
+
+        const agreementMatches =
+          !agreementQuery ||
+          normalise(item.agreement) === agreementQuery;
+
+        return (journalMatches || issnMatches) && agreementMatches;
       });
     }
 
@@ -625,11 +633,13 @@
 
       if (!filtered.length) {
         status.textContent = "0 journals found";
+
         results.innerHTML = `
           <div class="empty-message">
-            No matching journals were found. Try changing or clearing one or more search fields.
+            No matching journals were found. Try changing or clearing the search terms.
           </div>
         `;
+
         pagination.innerHTML = "";
         return;
       }
@@ -692,9 +702,7 @@
     }
 
     function resetSearch() {
-      fields.journal.value = "";
-      fields.issn.value = "";
-      fields.eissn.value = "";
+      fields.keyword.value = "";
       fields.agreement.value = "";
       currentPage = 1;
       renderResults();
@@ -705,6 +713,7 @@
         download: true,
         header: true,
         skipEmptyLines: true,
+
         complete: function(result) {
           journals = result.data
             .map(normaliseRow)
@@ -723,10 +732,12 @@
           populateAgreementDropdown();
           renderResults();
         },
+
         error: function(error) {
           console.error("CSV loading error:", error);
 
           status.textContent = "Unable to load journal data.";
+
           results.innerHTML = `
             <div class="empty-message">
               The journal list could not be loaded. Please make sure that
@@ -738,17 +749,7 @@
       });
     }
 
-    fields.journal.addEventListener("input", () => {
-      currentPage = 1;
-      renderResults();
-    });
-
-    fields.issn.addEventListener("input", () => {
-      currentPage = 1;
-      renderResults();
-    });
-
-    fields.eissn.addEventListener("input", () => {
+    fields.keyword.addEventListener("input", () => {
       currentPage = 1;
       renderResults();
     });
