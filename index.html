@@ -20,15 +20,18 @@
       --primary: #598e96;
       --primary-dark: #3f7078;
       --primary-light: #e6e9e3;
+
       --text: #263b3f;
-      --muted: #5d7478;
-      --border: #c8d2ce;
+      --muted: #4b6165;
+      --border: #b8c8c4;
       --background: #f5f7f4;
       --white: #ffffff;
-      --link: #356d76;
+      --link: #245e68;
+
       --warning-background: #fff8dc;
-      --warning-border: #c69214;
+      --warning-border: #a76d00;
       --blockquote-border: #e6dc4a;
+      --focus-colour: #e6dc4a;
     }
 
     * {
@@ -48,10 +51,20 @@
       background: var(--background);
     }
 
-    header {
-      padding: 2.4rem 1.25rem;
+    .skip-link {
+      position: fixed;
+      top: -100px;
+      left: 1rem;
+      z-index: 1000;
+      padding: 0.75rem 1rem;
       color: var(--white);
-      background: var(--primary);
+      background: var(--primary-dark);
+      border-radius: 0 0 6px 6px;
+      text-decoration: none;
+    }
+
+    .skip-link:focus {
+      top: 0;
     }
 
     .container {
@@ -59,11 +72,21 @@
       margin: 0 auto;
     }
 
+    header {
+      padding: 2.4rem 1.25rem;
+      color: var(--white);
+      background: var(--primary);
+    }
+
     h1 {
       margin: 0;
       font-size: clamp(1.6rem, 4vw, 2.5rem);
       font-weight: 700;
       line-height: 1.25;
+    }
+
+    h2 {
+      font-size: 1.35rem;
     }
 
     main {
@@ -117,6 +140,14 @@
       color: var(--primary-dark);
     }
 
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid var(--focus-colour);
+      outline-offset: 3px;
+    }
+
     .search-grid {
       display: grid;
       grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
@@ -139,14 +170,19 @@
       font-size: 0.95rem;
       color: var(--text);
       background: var(--white);
-      border: 1px solid #aebcb8;
+      border: 1px solid #7b918d;
       border-radius: 6px;
     }
 
     input:focus,
     select:focus {
-      outline: 3px solid rgba(89, 142, 150, 0.25);
-      border-color: var(--primary);
+      border-color: var(--primary-dark);
+    }
+
+    .search-help {
+      margin: 0.45rem 0 0;
+      color: var(--muted);
+      font-size: 0.85rem;
     }
 
     .actions {
@@ -163,19 +199,20 @@
       font-family: inherit;
       font-size: 0.9rem;
       font-weight: 600;
+      color: var(--text);
+      background: var(--white);
       border: 1px solid transparent;
       border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.15s ease, border-color 0.15s ease;
     }
 
     .reset-button {
       color: var(--white);
-      background: var(--primary);
+      background: var(--primary-dark);
     }
 
     .reset-button:hover {
-      background: var(--primary-dark);
+      background: #2e5960;
     }
 
     #status {
@@ -207,8 +244,8 @@
     }
 
     th {
-      color: #2e5960;
-      font-weight: 600;
+      color: #244950;
+      font-weight: 700;
       white-space: nowrap;
       background: var(--primary-light);
     }
@@ -218,7 +255,7 @@
     }
 
     tbody tr:hover {
-      background: #f0f5f3;
+      background: #edf4f1;
     }
 
     tbody tr:last-child td {
@@ -240,7 +277,7 @@
 
     .loading-message {
       background: #edf5f6;
-      border-left-color: var(--primary);
+      border-left-color: var(--primary-dark);
     }
 
     #pagination {
@@ -261,23 +298,35 @@
 
     .page-button:hover:not(:disabled) {
       background: var(--primary-light);
-      border-color: var(--primary);
+      border-color: var(--primary-dark);
     }
 
     .page-button.active {
       color: var(--white);
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
     }
 
     .page-button:disabled {
       cursor: not-allowed;
-      opacity: 0.45;
+      opacity: 0.5;
     }
 
     .pagination-ellipsis {
       padding: 0.4rem 0.2rem;
       color: var(--muted);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     @media (max-width: 650px) {
@@ -309,6 +358,8 @@
 </head>
 
 <body>
+  <a class="skip-link" href="#results-heading">Skip to search results</a>
+
   <header>
     <div class="container">
       <h1>Transformative Agreements Journal Discovery Tool (Beta)</h1>
@@ -327,7 +378,7 @@
           rel="noopener noreferrer"
         >https://libguides.lib.hku.hk/openaccess/ta</a>.
       </p>
-
+      <blockquote>
       <p>
         All data are up-to-date at the time of data collection. Publishers may
         include and exclude journals without notifying the Libraries. Please
@@ -344,7 +395,7 @@
         >https://lib.hku.hk/check_form/ask_a_librarian-form/</a>
         (To: Open Access).
       </p>
-
+      </blockquote><br>
       <blockquote>
         <p>
           Some publishers declined to provide journal lists covered by the
@@ -364,16 +415,23 @@
       <div class="search-grid">
         <div>
           <label for="keywordSearch">Journal title, ISSN or eISSN</label>
+
           <input
             id="keywordSearch"
             type="search"
-            placeholder="Search journal title, ISSN or eISSN"
+            placeholder="e.g. Journal title or 1234-5678"
             autocomplete="off"
+            aria-describedby="keywordHelp"
           >
+
+          <p id="keywordHelp" class="search-help">
+            Enter a journal title, ISSN or eISSN. ISSNs may be entered with or without hyphens.
+          </p>
         </div>
 
         <div>
           <label for="agreementSearch">Agreement</label>
+
           <select id="agreementSearch">
             <option value="">All agreements</option>
           </select>
@@ -385,11 +443,15 @@
           Clear search
         </button>
 
-        <p id="status" aria-live="polite">Loading journal data…</p>
+        <p id="status" aria-live="polite" aria-atomic="true">
+          Loading journal data…
+        </p>
       </div>
     </section>
 
-    <section class="results-panel" aria-label="Search results">
+    <section class="results-panel" aria-labelledby="results-heading">
+      <h2 id="results-heading" tabindex="-1">Search results</h2>
+
       <div id="results">
         <div class="loading-message">Loading journal data…</div>
       </div>
@@ -414,6 +476,7 @@
     const results = document.getElementById("results");
     const pagination = document.getElementById("pagination");
     const resetButton = document.getElementById("resetButton");
+    const resultsHeading = document.getElementById("results-heading");
 
     function clean(value) {
       return String(value ?? "").trim();
@@ -562,9 +625,7 @@
       }
 
       if (!disabled) {
-        button.addEventListener("click", () => {
-          goToPage(page);
-        });
+        button.addEventListener("click", () => goToPage(page));
       }
 
       return button;
@@ -645,7 +706,7 @@
       const pageResults = filtered.slice(startIndex, endIndex);
 
       if (!filtered.length) {
-        status.textContent = "0 journals found";
+        status.textContent = "0 journals found.";
 
         results.innerHTML = `
           <div class="empty-message">
@@ -659,13 +720,22 @@
 
       status.textContent =
         `${filtered.length.toLocaleString()} journal(s) found — ` +
-        `showing ${(startIndex + 1).toLocaleString()}–${endIndex.toLocaleString()}`;
+        `showing ${(startIndex + 1).toLocaleString()}–${endIndex.toLocaleString()}, ` +
+        `page ${currentPage} of ${totalPages}.`;
 
       const rows = pageResults.map(item => {
         const agreementDisplay = isSafeUrl(item.link)
-          ? `<a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">
-               ${escapeHtml(item.agreement)}
-             </a>`
+          ? `
+            <a
+              href="${escapeHtml(item.link)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="${escapeHtml(item.agreement)} — opens agreement information in a new tab"
+            >
+              ${escapeHtml(item.agreement)}
+              <span class="visually-hidden"> (opens in a new tab)</span>
+            </a>
+          `
           : escapeHtml(item.agreement);
 
         return `
@@ -682,13 +752,16 @@
       results.innerHTML = `
         <div class="table-wrapper">
           <table>
+            <caption class="visually-hidden">
+              Journals matching the selected search criteria
+            </caption>
             <thead>
               <tr>
-                <th>Journal</th>
-                <th>ISSN</th>
-                <th>eISSN</th>
-                <th>Agreement</th>
-                <th>APC Coverage for HKU Authors</th>
+                <th scope="col">Journal</th>
+                <th scope="col">ISSN</th>
+                <th scope="col">eISSN</th>
+                <th scope="col">Agreement</th>
+                <th scope="col">APC Coverage for HKU Authors</th>
               </tr>
             </thead>
             <tbody>
@@ -708,6 +781,7 @@
       currentPage = Math.min(Math.max(page, 1), totalPages);
       renderResults();
 
+      resultsHeading.focus({ preventScroll: true });
       document.querySelector(".results-panel").scrollIntoView({
         behavior: "smooth",
         block: "start"
@@ -719,6 +793,7 @@
       fields.agreement.value = "";
       currentPage = 1;
       renderResults();
+      fields.keyword.focus();
     }
 
     function loadCsv() {
