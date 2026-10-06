@@ -28,6 +28,7 @@
       --link: #356d76;
       --warning-background: #fff8dc;
       --warning-border: #c69214;
+      --blockquote-border: #e6dc4a;
     }
 
     * {
@@ -48,9 +49,9 @@
     }
 
     header {
-      background: var(--primary);
-      color: var(--white);
       padding: 2.4rem 1.25rem;
+      color: var(--white);
+      background: var(--primary);
     }
 
     .container {
@@ -74,11 +75,11 @@
     .intro,
     .search-panel,
     .results-panel {
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
       background: var(--white);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 1.25rem;
     }
 
     .intro p {
@@ -87,6 +88,23 @@
 
     .intro p:last-child {
       margin-bottom: 0;
+    }
+
+    blockquote {
+      padding: 0.85rem 1rem;
+      margin: 1.25rem 0 0;
+      color: var(--text);
+      background: #fffdf1;
+      border-left: 5px solid var(--blockquote-border);
+      border-radius: 0 6px 6px 0;
+    }
+
+    blockquote p {
+      margin: 0;
+    }
+
+    blockquote a {
+      overflow-wrap: anywhere;
     }
 
     a {
@@ -183,16 +201,16 @@
     th,
     td {
       padding: 0.85rem 0.9rem;
-      border-bottom: 1px solid var(--border);
       text-align: left;
       vertical-align: top;
+      border-bottom: 1px solid var(--border);
     }
 
     th {
       color: #2e5960;
-      background: var(--primary-light);
       font-weight: 600;
       white-space: nowrap;
+      background: var(--primary-light);
     }
 
     tbody tr:nth-child(even) {
@@ -209,8 +227,8 @@
 
     .empty-message,
     .loading-message {
-      margin-top: 0.5rem;
       padding: 1rem;
+      margin-top: 0.5rem;
       border-left: 4px solid;
       border-radius: 4px;
     }
@@ -228,8 +246,8 @@
     #pagination {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       gap: 0.4rem;
       margin-top: 1.35rem;
     }
@@ -282,8 +300,8 @@
       }
 
       .actions {
-        align-items: flex-start;
         flex-direction: column;
+        align-items: flex-start;
         gap: 0.7rem;
       }
     }
@@ -327,19 +345,19 @@
         (To: Open Access).
       </p>
 
-      <p>
-        Some publishers declined to provide journal lists covered by the
-        transformative agreements, which were used for creation of this tool.
-        Please directly refer to the publishers' sites for journals covered.
-        They are:</p>
       <blockquote>
-        <a
-          href="https://libguides.lib.hku.hk/openaccess/ta#ACM"
-          target="_blank"
-          rel="noopener noreferrer"
-        >ACM (Association for Computing Machinery)</a>
+        <p>
+          Some publishers declined to provide journal lists covered by the
+          transformative agreements, which were used for creation of this tool.
+          Please directly refer to the publishers' sites for journals covered.
+          They are:<br>
+                    <a
+            href="https://libguides.lib.hku.hk/openaccess/ta#ACM"
+            target="_blank"
+            rel="noopener noreferrer"
+          >ACM (Association for Computing Machinery)</a>
+        </p>
       </blockquote>
-
     </section>
 
     <section class="search-panel" aria-label="Journal search">
@@ -407,11 +425,6 @@
         .replace(/\s+/g, " ");
     }
 
-    /*
-      Removes hyphens, spaces, and other punctuation from ISSN/eISSN values.
-      Examples:
-      1234-5678, 12345678, and 1234 5678 all become 12345678.
-    */
     function normaliseIssn(value) {
       return clean(value)
         .toLowerCase()
