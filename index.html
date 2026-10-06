@@ -20,14 +20,12 @@
       --primary: #598e96;
       --primary-dark: #3f7078;
       --primary-light: #e6e9e3;
-
       --text: #263b3f;
       --muted: #4b6165;
       --border: #b8c8c4;
       --background: #f5f7f4;
       --white: #ffffff;
       --link: #245e68;
-
       --warning-background: #fff8dc;
       --warning-border: #a76d00;
       --blockquote-border: #e6dc4a;
@@ -86,6 +84,7 @@
     }
 
     h2 {
+      margin-top: 0;
       font-size: 1.35rem;
     }
 
@@ -378,13 +377,14 @@
           rel="noopener noreferrer"
         >https://libguides.lib.hku.hk/openaccess/ta</a>.
       </p>
-      <blockquote>
+
       <p>
         All data are up-to-date at the time of data collection. Publishers may
         include and exclude journals without notifying the Libraries. Please
         refer to the agreement page for latest information.
+      </p>
 
-      <br>
+      <p>
         If you find out any discrepancies between the information provided by
         this tool and that provided by the publisher, please report them to us via:
         <a
@@ -394,18 +394,19 @@
         >https://lib.hku.hk/check_form/ask_a_librarian-form/</a>
         (To: Open Access).
       </p>
-      </blockquote>
+
       <blockquote>
         <p>
           Some publishers declined to provide journal lists covered by the
           transformative agreements, which were used for creation of this tool.
           Please directly refer to the publishers' sites for journals covered.
           They are:<br>
-                    <a
+          ACM (Association for Computing Machinery):
+          <a
             href="https://libguides.lib.hku.hk/openaccess/ta#ACM"
             target="_blank"
             rel="noopener noreferrer"
-          >ACM (Association for Computing Machinery)</a>
+          >https://libguides.lib.hku.hk/openaccess/ta#ACM</a>
         </p>
       </blockquote>
     </section>
@@ -424,7 +425,7 @@
           >
 
           <p id="keywordHelp" class="search-help">
-            Enter a journal title, ISSN or eISSN. 
+            Enter a journal title, ISSN or eISSN. ISSNs may be entered with or without hyphens.
           </p>
         </div>
 
@@ -481,12 +482,29 @@
       return String(value ?? "").trim();
     }
 
+    /*
+      Normalises journal titles for more flexible searching:
+      - ignores upper/lower case
+      - removes accents where possible
+      - treats punctuation, apostrophes, hyphens, ampersands and repeated
+        spaces consistently
+    */
     function normalise(value) {
       return clean(value)
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, " ")
+        .trim()
         .replace(/\s+/g, " ");
     }
 
+    /*
+      Normalises ISSN/eISSN values so these all match:
+      1234-5678
+      12345678
+      1234 5678
+    */
     function normaliseIssn(value) {
       return clean(value)
         .toLowerCase()
@@ -511,16 +529,27 @@
       }
     }
 
+    /*
+      Reads CSV values safely even if the first CSV header contains a UTF-8 BOM,
+      leading/trailing spaces, or different capitalisation.
+    */
     function getValue(row, possibleNames) {
-      const rowKeys = Object.keys(row);
+      const normalisedRow = {};
+
+      Object.entries(row).forEach(([key, value]) => {
+        const cleanKey = key
+          .replace(/^\uFEFF/, "")
+          .trim()
+          .toLowerCase();
+
+        normalisedRow[cleanKey] = value;
+      });
 
       for (const name of possibleNames) {
-        const matchingKey = rowKeys.find(
-          key => key.trim().toLowerCase() === name.toLowerCase()
-        );
+        const value = normalisedRow[name.toLowerCase()];
 
-        if (matchingKey && clean(row[matchingKey]) !== "") {
-          return clean(row[matchingKey]);
+        if (value !== undefined && clean(value) !== "") {
+          return clean(value);
         }
       }
 
@@ -550,7 +579,6 @@
           "publisher name"
         ]),
         coverage: getValue(row, [
-          "APC Coverage for HKU Authors",
           "apc coverage for hku authors",
           "apc coverage",
           "coverage"
@@ -580,8 +608,9 @@
     }
 
     function getFilteredJournals() {
-      const keywordQuery = normalise(fields.keyword.value);
-      const issnQuery = normaliseIssn(fields.keyword.value);
+      const rawQuery = clean(fields.keyword.value);
+      const keywordQuery = normalise(rawQuery);
+      const issnQuery = normaliseIssn(rawQuery);
       const agreementQuery = normalise(fields.agreement.value);
 
       return journals.filter(item => {
@@ -589,10 +618,16 @@
           !keywordQuery ||
           normalise(item.journal).includes(keywordQuery);
 
+        /*
+          Require at least four ISSN characters before attempting an ISSN match.
+          This prevents ordinary text searches from being treated as ISSN searches.
+        */
         const issnMatches =
-          !issnQuery ||
-          normaliseIssn(item.issn).includes(issnQuery) ||
-          normaliseIssn(item.eissn).includes(issnQuery);
+          issnQuery.length >= 4 &&
+          (
+            normaliseIssn(item.issn).includes(issnQuery) ||
+            normaliseIssn(item.eissn).includes(issnQuery)
+          );
 
         const agreementMatches =
           !agreementQuery ||
@@ -781,6 +816,7 @@
       renderResults();
 
       resultsHeading.focus({ preventScroll: true });
+
       document.querySelector(".results-panel").scrollIntoView({
         behavior: "smooth",
         block: "start"
